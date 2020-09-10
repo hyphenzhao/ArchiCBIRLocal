@@ -99,6 +99,6 @@ if __name__ == '__main__':
     # When this module is run (not imported) then create the app, the
     # frame, show it, and start the event loop.
     app = wx.App()
-    frm = HelloFrame(None, title='Hello World 2')
+    frm = HelloFrame(None, title='建筑图片聚类系统')
     frm.Show()
     app.MainLoop()
