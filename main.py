@@ -79,7 +79,7 @@ def GenerateFeatureDatabase(fd_name, ft_name, ft_label, pgbar, pglabel, root):
 	file_io.save_obj(fd_name,"save")
 
 
-def AnalyseInputImage(queryDir, maxNo, model_name, img_canvas, root, vsbar):
+def AnalyseInputImage(queryDir, maxNo, model_name, img_canvas, root):
 	h5f = h5py.File(model_name,'r')
 	feats = h5f['dataset_1'][:]
 	imgNames_utf = h5f['dataset_2'][:]
@@ -96,23 +96,35 @@ def AnalyseInputImage(queryDir, maxNo, model_name, img_canvas, root, vsbar):
 	maxres = int(maxNo)
 	imlist = [imgNames[index] for i,index in enumerate(rank_ID[0:maxres])]
 
+	vsbar = Scrollbar(frame_canvas, orient=VERTICAL, command=img_canvas.yview)
+	vsbar.grid(row=0, column=1, sticky=NS)
+	vsbar.config(command=img_canvas.yview)
+	img_canvas.configure(yscrollcommand=vsbar.set)
+	frame_images = Frame(img_canvas, bg="grey")
+	img_canvas.create_window((0,0), window=frame_images, anchor='nw')
 	img_no = 0
+	max_in_row = 0
+	height_total = 0
+
 	for i in imlist:
 		basewidth = 300
 		img = Image.open(i)
 		wpercent = (basewidth/float(img.size[0]))
 		hsize = int((float(img.size[1])*float(wpercent)))
+		max_in_row = max(max_in_row, hsize)
 		img = img.resize((basewidth,hsize), Image.ANTIALIAS)
 		render = ImageTk.PhotoImage(img)
-		img_show = Label(img_canvas, image=render)
-		img_show.image=render
+		img_show = Label(frame_images, image=render)
+		img_show.image = render
 		img_show.grid(row=img_no//3, column=img_no%3)
 		img_no += 1
-	vsbar.config(command=img_canvas.yview)
-	img_canvas.configure(yscrollcommand=vsbar.set)
-	img_canvas.config(scrollregion=img_canvas.bbox("all"))
+		if img_no%3==0:
+			height_total += max_in_row
+			max_in_row = 0
+	frame_canvas.config(height=height_total)
 	root.update()
-
+	img_canvas.config(scrollregion=img_canvas.bbox("all"))
+	# root.update()
 # Setup main frame
 root = Tk()
 root.geometry("1000x800")
@@ -127,9 +139,6 @@ frame_canvas.grid_rowconfigure(0, weight=1)
 frame_canvas.grid_columnconfigure(0, weight=1)
 img_canvas = Canvas(frame_canvas, bg="grey", width=900, height=600)
 img_canvas.grid(row=0, column=0, sticky="nsew")
-vsbar = Scrollbar(frame_canvas, orient=VERTICAL, command=img_canvas.yview)
-vsbar.grid(row=0, column=1, sticky=NS)
-img_canvas.configure(yscrollcommand=vsbar.set)
 
 # Show feature path
 feature_name = os.path.join(os.path.dirname(__file__), "feature.h5")
@@ -176,7 +185,7 @@ Label(root, text="待识别图片：").grid(row=3, column=0, sticky=W)
 e_imgInput = Entry(root, width=60)
 e_imgInput.grid(row=3, column=1, sticky=W)
 Button(root, text="浏览文件", command=lambda: GetFilenameFromSelector(root, e_imgInput)).grid(row=3, column=1, sticky=E)
-Button(root, text="识别图片", command=lambda: AnalyseInputImage(e_imgInput.get(), e_maxRsltNo.get(), feature_name, img_canvas, root, vsbar)).grid(row=4, column=1, sticky=E)
+Button(root, text="识别图片", command=lambda: AnalyseInputImage(e_imgInput.get(), e_maxRsltNo.get(), feature_name, img_canvas, root)).grid(row=4, column=1, sticky=E)
 
 # Output result
 Label(root, text="相似图片查找结果：").grid(row=5, column=0, sticky=W)
