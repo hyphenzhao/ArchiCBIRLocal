@@ -131,6 +131,7 @@ root.geometry("1000x800")
 root.columnconfigure(0, weight=1)
 root.columnconfigure(1, weight=5)
 root.columnconfigure(2, weight=5)
+root.title("建筑图片聚类系统")
 
 # Setup image canvas
 frame_canvas = Frame(root)
