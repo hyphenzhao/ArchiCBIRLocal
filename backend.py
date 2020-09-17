@@ -23,7 +23,7 @@ class VGGNet:
         # input_shape: (width, height, 3), width and height should >= 48
         self.input_shape = (224, 224, 3)
         self.pooling = 'max'
-        self.weights = os.path.join(os.path.dirname(__file__), 'weights.h5')
+        self.weights = os.path.join('C:/workspace/', 'weights.h5')
         self.model = VGG16(weights = self.weights, input_shape = (self.input_shape[0], self.input_shape[1], self.input_shape[2]), pooling = self.pooling, include_top = False)
         self.model.predict(np.zeros((1, 224, 224 , 3)))
 
