@@ -15,7 +15,7 @@ from tkinter import ttk
 from tkinter.filedialog import askdirectory, askopenfilename
 from fileio import FileIO
 from PIL import Image, ImageTk
-
+import sys
 
 def GetFoldernameFromSelector(root, e):
 	root.update()
@@ -65,7 +65,11 @@ def GenerateFeatureDatabase(fd_name, ft_name, ft_label, pgbar, pglabel, root):
 		root.update()
 	feats = np.array(feats)
 	output = ft_name
-	output = os.path.join('C:/workspace/', output)
+	if getattr(sys, 'frozen', False):
+		application_path = os.path.dirname(sys.executable)
+	elif __file__:
+		application_path = os.path.dirname(__file__)
+	output = os.path.join(application_path, output)
 	print("--------------------------------------------------")
 	print("      writing feature extraction results ...")
 	print("--------------------------------------------------")
@@ -142,7 +146,11 @@ img_canvas = Canvas(frame_canvas, bg="grey", width=900, height=600)
 img_canvas.grid(row=0, column=0, sticky="nsew")
 
 # Show feature path
-feature_name = os.path.join('C:/workspace/', "feature.h5")
+if getattr(sys, 'frozen', False):
+	application_path = os.path.dirname(sys.executable)
+elif __file__:
+	application_path = os.path.dirname(__file__)
+feature_name = os.path.join(application_path, "feature.h5")
 Label(root, text="提取特征存储文件名称：").grid(row=2, column=0, sticky=W)
 if os.path.exists(feature_name):
 	feature_text = os.path.abspath(feature_name)
