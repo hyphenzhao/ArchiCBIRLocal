@@ -42,7 +42,9 @@ def GenerateFeatureDatabase(fd_name, ft_name, ft_label, pgbar, pglabel, root):
 		return
 	ft_label.configure(text=os.path.abspath(ft_name))
 	file_handler = FileHandler()
-	img_list = file_handler.get_imlist(fd_name)
+	# img_list = file_handler.get_imlist(fd_name)
+	img_list = [os.path.join(dp, f) for dp, dn, filenames in os.walk(fd_name) for f in filenames if os.path.splitext(f)[1] == '.jpg']
+	# print(img_list)
 	print("--------------------------------------------------")
 	print("         feature extraction starts")
 	print("--------------------------------------------------")
@@ -58,6 +60,7 @@ def GenerateFeatureDatabase(fd_name, ft_name, ft_label, pgbar, pglabel, root):
 		feats.append(norm_feat)
 		names.append(img_name.encode('utf-8'))
 		print("extracting feature from image No. %d , %d images in total" %((i+1), len(img_list)))
+		print(img_path)
 		pgbar['value'] = (100 * ite_no) / ite_to
 		print(pgbar['value'])
 		label_content="{0:0.2f}%".format(pgbar['value'])
