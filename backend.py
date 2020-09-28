@@ -3,7 +3,7 @@
 
 import numpy as np
 from numpy import linalg as LA
-
+import sys
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
@@ -23,7 +23,12 @@ class VGGNet:
         # input_shape: (width, height, 3), width and height should >= 48
         self.input_shape = (224, 224, 3)
         self.pooling = 'max'
-        self.weights = os.path.join(os.path.dirname(__file__), 'weights.h5')
+        if getattr(sys, 'frozen', False):
+            application_path = os.path.dirname(sys.executable)
+        elif __file__:
+            application_path = os.path.dirname(__file__)
+        self.weights = os.path.join(application_path, 'weights.h5')
+        print(self.weights)
         self.model = VGG16(weights = self.weights, input_shape = (self.input_shape[0], self.input_shape[1], self.input_shape[2]), pooling = self.pooling, include_top = False)
         self.model.predict(np.zeros((1, 224, 224 , 3)))
 
