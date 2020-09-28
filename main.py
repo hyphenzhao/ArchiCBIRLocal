@@ -16,6 +16,11 @@ from tkinter.filedialog import askdirectory, askopenfilename
 from fileio import FileIO
 from PIL import Image, ImageTk
 import sys
+from datetime import datetime
+
+# Resolve maximum image size issue
+# Add a logger to keep more error information
+Image.MAX_IMAGE_PIXELS = None
 
 def GetFoldernameFromSelector(root, e):
 	root.update()
@@ -51,24 +56,31 @@ def GenerateFeatureDatabase(fd_name, ft_name, ft_label, pgbar, pglabel, root):
 	model = VGGNet()
 	ite_no = 0
 	ite_to = len(img_list)
-	for i, img_path in enumerate(img_list):
-		ite_no += 1
-		norm_feat = model.extract_feat(img_path)
-		img_name = img_path
-		feats.append(norm_feat)
-		names.append(img_name.encode('utf-8'))
-		print("extracting feature from image No. %d , %d images in total" %((i+1), len(img_list)))
-		pgbar['value'] = (100 * ite_no) / ite_to
-		print(pgbar['value'])
-		label_content="{0:0.2f}%".format(pgbar['value'])
-		pglabel.configure(text=label_content)
-		root.update()
-	feats = np.array(feats)
-	output = ft_name
 	if getattr(sys, 'frozen', False):
 		application_path = os.path.dirname(sys.executable)
 	elif __file__:
 		application_path = os.path.dirname(__file__)
+	for i, img_path in enumerate(img_list):
+		try:
+			ite_no += 1
+			norm_feat = model.extract_feat(img_path)
+			img_name = img_path
+			feats.append(norm_feat)
+			names.append(img_name.encode('utf-8'))
+			print("extracting feature from image No. %d , %d images in total" %((i+1), len(img_list)))
+			pgbar['value'] = (100 * ite_no) / ite_to
+			print(pgbar['value'])
+			label_content="{0:0.2f}%".format(pgbar['value'])
+			pglabel.configure(text=label_content)
+			root.update()
+		except Exception as e:
+			logger_fname = os.path.join(self.application_path, 'error.log')
+			now = datetime.now()
+			dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+			with open(logger_fname, "a+") as f:
+				f.write(dt_string + e)
+	feats = np.array(feats)
+	output = ft_name
 	output = os.path.join(application_path, output)
 	print("--------------------------------------------------")
 	print("      writing feature extraction results ...")
