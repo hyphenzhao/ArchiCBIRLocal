@@ -17,10 +17,21 @@ from fileio import FileIO
 from PIL import Image, ImageTk
 import sys
 from datetime import datetime
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 # Resolve maximum image size issue
 # Add a logger to keep more error information
 Image.MAX_IMAGE_PIXELS = None
+
+def ShowOriginalImage(event):
+	img_no = int(str(event.widget).split(".")[-1])
+	file_io = FileIO()
+	imlist = file_io.load_obj("imlist")
+	ipath = imlist[img_no]
+	img = mpimg.imread(ipath)
+	imgplot = plt.imshow(img)
+	plt.show()
 
 def GetFoldernameFromSelector(root, e):
 	root.update()
@@ -48,7 +59,7 @@ def GenerateFeatureDatabase(fd_name, ft_name, ft_label, pgbar, pglabel, root):
 	ft_label.configure(text=os.path.abspath(ft_name))
 	file_handler = FileHandler()
 	# img_list = file_handler.get_imlist(fd_name)
-	img_list = [os.path.join(dp, f) for dp, dn, filenames in os.walk(fd_name) for f in filenames if os.path.splitext(f)[1] == '.jpg']
+	img_list = [os.path.join(dp, f) for dp, dn, filenames in os.walk(fd_name) for f in filenames if os.path.splitext(f)[1] == '.jpg' or os.path.splitext(f)[1] == '.jpeg']
 	# print(img_list)
 	print("--------------------------------------------------")
 	print("         feature extraction starts")
@@ -113,7 +124,10 @@ def AnalyseInputImage(queryDir, maxNo, model_name, img_canvas, root):
 	rank_score = scores[rank_ID]
 	maxres = int(maxNo)
 	imlist = [imgNames[index] for i,index in enumerate(rank_ID[0:maxres])]
+	file_io = FileIO()
+	file_io.save_obj(imlist,"imlist")
 
+	img_canvas.delete('all')
 	vsbar = Scrollbar(frame_canvas, orient=VERTICAL, command=img_canvas.yview)
 	vsbar.grid(row=0, column=1, sticky=NS)
 	vsbar.config(command=img_canvas.yview)
@@ -132,7 +146,8 @@ def AnalyseInputImage(queryDir, maxNo, model_name, img_canvas, root):
 		max_in_row = max(max_in_row, hsize)
 		img = img.resize((basewidth,hsize), Image.ANTIALIAS)
 		render = ImageTk.PhotoImage(img)
-		img_show = Label(frame_images, image=render)
+		img_show = Label(frame_images, image=render, name=str(img_no))
+		img_show.bind("<Button-1>", ShowOriginalImage)
 		img_show.image = render
 		img_show.grid(row=img_no//3, column=img_no%3)
 		img_no += 1
