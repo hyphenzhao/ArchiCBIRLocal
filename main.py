@@ -264,8 +264,7 @@ file_io = FileIO()
 dbFolder_text = [""]
 if file_io.check_obj('save'):
 	dbFolder_text = file_io.load_obj('save')
-e_dbFolder = ttk.Combobox(root, values=dbFolder_text)
-e_dbFolder.current(len(dbFolder_text) - 1)
+e_dbFolder = ttk.Combobox(root, values=dbFolder_text, width=80)
 e_dbFolder.grid(row=0, column=1, sticky=W)
 Button(root, text="浏览文件夹", command=lambda: GetFoldernameFromSelector(root, e_dbFolder)).grid(row=0, column=1, sticky=E)
 ft_extract_btn = Button(root, text="提取特征", command=lambda: GenerateFeatureDatabase(e_dbFolder, label_feature_name, pgbar, l_pg, root))
@@ -276,13 +275,13 @@ e_dbFolder["textvar"] = e_var
 
 # Setup the maximum number of similar images
 Label(root, text="最大图片显示数量：").grid(row=4, column=0, sticky=W)
-e_maxRsltNo = Entry(root, width=5)
+e_maxRsltNo = Entry(root, width=20)
 e_maxRsltNo.grid(row=4, column=1, sticky=W)
 e_maxRsltNo.insert(0, "3")
 
 # Load image to be analysed
 Label(root, text="待识别图片：").grid(row=3, column=0, sticky=W)
-e_imgInput = Entry(root, width=60)
+e_imgInput = Entry(root, width=80)
 e_imgInput.grid(row=3, column=1, sticky=W)
 Button(root, text="浏览文件", command=lambda: GetFilenameFromSelector(root, e_imgInput)).grid(row=3, column=1, sticky=E)
 Button(root, text="识别图片", command=lambda: AnalyseInputImage(e_imgInput.get(), e_maxRsltNo.get(), label_feature_name["text"], img_canvas, root)).grid(row=4, column=1, sticky=E)
@@ -291,4 +290,6 @@ Button(root, text="识别图片", command=lambda: AnalyseInputImage(e_imgInput.g
 Label(root, text="相似图片查找结果：").grid(row=5, column=0, sticky=W)
 
 OnFdTextChanged(root, pgbar, l_pg, ft_extract_btn, e_dbFolder, label_feature_name)
+e_dbFolder.current(len(dbFolder_text) - 1)
+
 root.mainloop()
